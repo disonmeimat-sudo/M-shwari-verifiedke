@@ -180,7 +180,7 @@ def apply():
 
     # --------------------------------------------------------
     # Never trust the amount supplied by the browser.
-    # Validate it against the configured loan products.
+    # Validate it against configured loan products.
     # --------------------------------------------------------
 
     raw_amount = (
@@ -222,18 +222,12 @@ def apply():
             app_obj is None
             or app_obj.loan_amount != amount
         ):
-            app_obj = loan_service.create_draft(
-                amount
-            )
+            app_obj = loan_service.create_draft(amount)
 
-            session[
-                "draft_application_id"
-            ] = app_obj.id
+            session["draft_application_id"] = app_obj.id
 
         # Normalize phone before storing it.
-        phone = normalize_phone(
-            form.phone.data
-        )
+        phone = normalize_phone(form.phone.data)
 
         loan_service.update_draft(
             app_obj,
@@ -263,38 +257,25 @@ def apply():
         and app_obj.full_name
     ):
 
-        form.full_name.data = (
-            app_obj.full_name
-        )
+        form.full_name.data = app_obj.full_name
 
         if app_obj.phone:
-
             form.phone.data = (
                 app_obj.phone[3:]
                 if len(app_obj.phone) == 12
                 else app_obj.phone
             )
 
-        form.county.data = (
-            app_obj.county
-        )
-
-        form.loan_reason.data = (
-            app_obj.loan_reason
-        )
-
-        form.email.data = (
-            app_obj.email or ""
-        )
+        form.county.data = app_obj.county
+        form.loan_reason.data = app_obj.loan_reason
+        form.email.data = app_obj.email or ""
 
     return render_template(
         "application.html",
         form=form,
         product=product,
         step=2,
-        back_url=url_for(
-            "main.landing"
-        ),
+        back_url=url_for("main.landing"),
     )
 
 
@@ -329,7 +310,7 @@ def review(application_id):
 # ============================================================
 
 @bp.route(
-    "/confirm/int:application_id",
+    "/confirm/<int:application_id>",
     methods=["GET", "POST"],
 )
 def confirm(application_id):
@@ -385,14 +366,9 @@ def confirm(application_id):
         db.session.commit()
 
         # ----------------------------------------------------
-        # IMPORTANT:
+        # Create pending payment transaction.
         #
-        # This ONLY creates/prepares the payment transaction.
-        #
-        # It DOES NOT send the PalPluss STK Push.
-        #
-        # The STK Push will be sent when the user clicks
-        # CONTINUE on payment.html.
+        # This does NOT send the STK Push.
         # ----------------------------------------------------
 
         tx = payment_service.create_pending_payment(
@@ -427,7 +403,7 @@ def confirm(application_id):
 # ============================================================
 
 @bp.route(
-    "/application/int:application_id/success"
+    "/application/<int:application_id>/success"
 )
 def success(application_id):
 
@@ -451,7 +427,7 @@ def success(application_id):
 # ============================================================
 
 @bp.route(
-    "/application/int:application_id/failed"
+    "/application/<int:application_id>/failed"
 )
 def failed(application_id):
 
@@ -476,7 +452,7 @@ def failed(application_id):
 # ============================================================
 
 @bp.route(
-    "/application/int:application_id"
+    "/application/<int:application_id>"
 )
 def detail(application_id):
 

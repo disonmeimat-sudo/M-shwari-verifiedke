@@ -1,104 +1,434 @@
 {% extends "base.html" %}
 
-{% block styles %}
-{% endblock %}
-
 {% block title %}
 Check Your Phone | {{ app_name }}
 {% endblock %}
 
+{% block styles %}
+<style>
+    .payment-page {
+        width: 100%;
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+        box-sizing: border-box;
+    }
+
+    .payment-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .payment-header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+    }
+
+    .payment-header p {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .payment-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+        background: #d9fbe5;
+        color: #126b3a;
+        line-height: 1.5;
+    }
+
+    .payment-notice i {
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .payment-summary {
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        margin-bottom: 16px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 17px 16px;
+        border-bottom: 1px solid #e7ece9;
+    }
+
+    .summary-row:last-child {
+        border-bottom: 0;
+    }
+
+    .summary-label {
+        color: #61776b;
+        font-size: 15px;
+    }
+
+    .summary-value {
+        color: #20372b;
+        font-weight: 700;
+        text-align: right;
+        word-break: break-word;
+    }
+
+    .provider-row {
+        background: #d9fbe5;
+    }
+
+    .provider-row .summary-label,
+    .provider-row .summary-value {
+        color: #126b3a;
+        font-weight: 700;
+    }
+
+    .payment-instructions {
+        padding: 18px 16px;
+        margin-bottom: 16px;
+        border-radius: 14px;
+        background: #d9fbe5;
+        color: #176b3e;
+        line-height: 1.6;
+    }
+
+    .payment-instructions strong {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .payment-instructions ol {
+        margin: 0;
+        padding-left: 22px;
+    }
+
+    .payment-instructions li {
+        margin-bottom: 6px;
+    }
+
+    .payment-error {
+        display: none;
+        padding: 14px 16px;
+        margin-top: 12px;
+        border-radius: 12px;
+        background: #fde0e0;
+        color: #b42318;
+        line-height: 1.5;
+    }
+
+    .payment-error.show {
+        display: block;
+    }
+
+    .payment-button {
+        width: 100%;
+        min-height: 52px;
+        border: 0;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 700;
+        touch-action: manipulation;
+    }
+
+    .payment-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    @media (max-width: 600px) {
+        .payment-page {
+            padding: 18px 12px 32px;
+        }
+
+        .payment-header h1 {
+            font-size: 26px;
+        }
+
+        .payment-header p {
+            font-size: 15px;
+        }
+
+        .summary-row {
+            padding: 15px 13px;
+        }
+
+        .summary-label,
+        .summary-value {
+            font-size: 14px;
+        }
+
+        .payment-notice,
+        .payment-instructions {
+            font-size: 14px;
+        }
+
+        .payment-button {
+            min-height: 54px;
+            font-size: 16px;
+        }
+    }
+</style>
+{% endblock %}
+
+
 {% block content %}
 
-<div class="pay-head">
-    <div class="pay-icon" aria-hidden="true">
-        <i class="bi bi-phone"></i>
+<div class="payment-page">
+
+    <div class="payment-header">
+        <h1>Complete Your Payment</h1>
+        <p>Check your phone for an M-Pesa payment request.</p>
     </div>
 
-    <h1>Complete Your Payment</h1>
 
-    <p class="pay-sub">
-        Click continue to receive an M-Pesa payment request on your phone.
-    </p>
+    <div class="payment-notice">
+        <i class="bi bi-phone-fill" aria-hidden="true"></i>
+
+        <div>
+            An M-Pesa payment request will be sent to
+            <strong>{{ transaction.phone | phone }}</strong>.
+        </div>
+    </div>
+
+
+    <div class="payment-summary">
+
+        <div class="summary-row">
+            <span class="summary-label">
+                Payment Amount
+            </span>
+
+            <span class="summary-value">
+                KES {{ '{:,.0f}'.format(transaction.amount) }}
+            </span>
+        </div>
+
+
+        <div class="summary-row">
+            <span class="summary-label">
+                Phone Number
+            </span>
+
+            <span class="summary-value">
+                {{ transaction.phone | phone }}
+            </span>
+        </div>
+
+
+        <div class="summary-row">
+            <span class="summary-label">
+                Reference
+            </span>
+
+            <span class="summary-value">
+                {{ transaction.reference or 'Pending' }}
+            </span>
+        </div>
+
+
+        <div class="summary-row">
+            <span class="summary-label">
+                Status
+            </span>
+
+            <span class="summary-value">
+                {{ transaction.status }}
+            </span>
+        </div>
+
+
+        <div class="summary-row provider-row">
+            <span class="summary-label">
+                Provider
+            </span>
+
+            <span class="summary-value">
+                {{ transaction.provider }}
+            </span>
+        </div>
+
+    </div>
+
+
+    <div class="payment-instructions">
+
+        <strong>How to complete payment:</strong>
+
+        <ol>
+            <li>Tap <strong>CONTINUE</strong> below.</li>
+            <li>An M-Pesa payment prompt will appear on your phone.</li>
+            <li>Enter your M-Pesa PIN on your phone.</li>
+            <li>Wait while we confirm your payment.</li>
+        </ol>
+
+    </div>
+
+
+    <button
+        type="button"
+        id="continuePaymentBtn"
+        class="btn btn-green btn-block payment-button"
+        data-start-url="{{ url_for(
+            'payment.start_payment',
+            application_id=application.id,
+            transaction_id=transaction.id
+        ) }}"
+    >
+        CONTINUE
+    </button>
+
+
+    <div
+        id="paymentError"
+        class="payment-error"
+        role="alert"
+    ></div>
+
+
+    <!-- CSRF token for the POST request -->
+    <input
+        type="hidden"
+        id="csrfToken"
+        value="{{ csrf_token() }}"
+    >
+
 </div>
-
-
-<div class="pay-amount">
-    KES {{ '{:,.0f}'.format(transaction.amount) }}
-</div>
-
-
-<div class="pay-info">
-
-    <p>
-        An STK Push will be sent to
-        <strong>{{ transaction.phone | phone }}</strong>.
-    </p>
-
-    <p>
-        Check your phone and enter your M-Pesa PIN to complete the payment.
-    </p>
-
-    {% if lab_mode %}
-    <div class="lab-note">
-        If you are having problems, kindly contact the support team.
-    </div>
-    {% endif %}
-
-</div>
-
-
-<div class="pay-meta">
-
-    <div>
-        <span>Reference</span>
-        <strong>{{ transaction.reference or 'Pending' }}</strong>
-    </div>
-
-    <div>
-        <span>Status</span>
-        <strong>{{ transaction.status }}</strong>
-    </div>
-
-    <div>
-        <span>Provider</span>
-        <strong>{{ transaction.provider }}</strong>
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     CONTINUE BUTTON
-     ========================================================= -->
-
-<button
-    type="button"
-    id="continuePaymentBtn"
-    class="btn btn-green btn-block"
-    data-start-url="{{ url_for(
-        'payment.start_payment',
-        application_id=application.id,
-        transaction_id=transaction.id
-    ) }}"
->
-    CONTINUE
-</button>
-
-
-<!-- Payment error -->
-<div
-    id="paymentError"
-    class="payment-error"
-    style="display: none;"
-    role="alert"
-></div>
-
 
 {% endblock %}
 
 
 {% block scripts %}
 
-<script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const button = document.getElementById("continuePaymentBtn");
+    const errorBox = document.getElementById("paymentError");
+    const csrfTokenElement = document.getElementById("csrfToken");
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener("click", async function () {
+
+        if (button.disabled) {
+            return;
+        }
+
+        const startUrl = button.dataset.startUrl;
+
+        if (!startUrl) {
+            errorBox.textContent =
+                "Unable to start the payment request. Payment URL is missing.";
+            errorBox.classList.add("show");
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "SENDING REQUEST...";
+
+        errorBox.textContent = "";
+        errorBox.classList.remove("show");
+
+        try {
+
+            const csrfToken = csrfTokenElement
+                ? csrfTokenElement.value
+                : "";
+
+            const response = await fetch(startUrl, {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+
+                    /*
+                     * Flask-WTF / CSRF protection commonly
+                     * accepts the token through this header.
+                     */
+                    "X-CSRFToken": csrfToken,
+                    "X-CSRF-Token": csrfToken
+                },
+
+                credentials: "same-origin",
+
+                body: JSON.stringify({})
+            });
+
+            let data = {};
+
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                data = {};
+            }
+
+
+            /*
+             * The backend can return a redirect URL
+             * after successfully starting the STK Push.
+             */
+            if (response.ok && data.redirect_url) {
+
+                window.location.href = data.redirect_url;
+                return;
+            }
+
+
+            /*
+             * If the backend reports an error,
+             * display the actual backend message.
+             */
+            let message =
+                data.error ||
+                data.message ||
+                "Unable to send the payment request. Please try again.";
+
+
+            /*
+             * CSRF failure usually arrives as HTTP 400.
+             */
+            if (response.status === 400) {
+
+                message =
+                    data.error ||
+                    data.message ||
+                    "The payment request was rejected by the server. Please refresh the page and try again.";
+            }
+
+
+            errorBox.textContent = message;
+            errorBox.classList.add("show");
+
+            button.disabled = false;
+            button.textContent = "CONTINUE";
+
+        } catch (error) {
+
+            console.error("Payment request error:", error);
+
+            errorBox.textContent =
+                "Unable to connect to the payment server. Please try again.";
+
+            errorBox.classList.add("show");
+
+            button.disabled = false;
+            button.textContent = "CONTINUE";
+        }
+
+    });
+
+});
+</script>
 
 {% endblock %}

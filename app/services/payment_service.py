@@ -725,18 +725,24 @@ def prepare_payment(app_obj):
 
 def initiate_pending_payment(transaction):
     """
-    Send the actual PalPluss STK Push for a prepared
-    transaction.
+    Send the actual PalPluss STK Push for a prepared transaction.
 
-    This function is called only after the user clicks
-    CONTINUE.
+    IMPORTANT:
+    A provider timeout does NOT automatically mean that the STK Push
+    failed. The request may have reached PalPluss and the STK may
+    already be on the customer's phone.
+
+    Therefore:
+        - confirmed provider rejection -> FAILED
+        - uncertain/network timeout -> remain PENDING
+        - successful initiation -> PENDING/SUCCESS
     """
 
     if transaction.status in TERMINAL:
         return transaction
 
     # --------------------------------------------------------
-    # Prevent duplicate STK Push
+    # Prevent duplicate STK Pushes
     # --------------------------------------------------------
 
     if transaction.reference:
@@ -763,7 +769,7 @@ def initiate_pending_payment(transaction):
         )
 
         # ----------------------------------------------------
-        # Copy provider response into our existing transaction
+        # Provider accepted the request
         # ----------------------------------------------------
 
         transaction.reference = result_tx.reference
@@ -786,11 +792,64 @@ def initiate_pending_payment(transaction):
 
         return transaction
 
-    except PaymentProviderError:
+    except PaymentProviderError as exc:
+
         db.session.rollback()
 
-        transaction.status = FAILED
+        error_text = str(exc).lower()
 
+        # ----------------------------------------------------
+        # PROVIDER TIMEOUT / NETWORK ERROR
+        # ----------------------------------------------------
+        #
+        # We cannot know whether PalPluss received the request.
+        #
+        # DO NOT mark the transaction FAILED.
+        #
+        # The STK may already have been sent.
+        # ----------------------------------------------------
+
+        uncertain_errors = (
+            "timeout",
+            "timed out",
+            "read timeout",
+            "connect timeout",
+            "connection timeout",
+            "connection reset",
+            "connection aborted",
+            "connection error",
+            "network error",
+            "temporarily unavailable",
+            "temporary failure",
+            "gateway timeout",
+            "504",
+        )
+
+        if any(
+            message in error_text
+            for message in uncertain_errors
+        ):
+            transaction.status = PENDING
+            application.status = "PAYMENT_PENDING"
+
+            db.session.commit()
+
+            current_app.logger.warning(
+                "PalPluss response timed out/was uncertain "
+                "for transaction %s. Keeping transaction PENDING. "
+                "The STK Push may already have reached the phone. "
+                "Provider error: %s",
+                transaction.id,
+                exc,
+            )
+
+            return transaction
+
+        # ----------------------------------------------------
+        # DEFINITE PROVIDER FAILURE
+        # ----------------------------------------------------
+
+        transaction.status = FAILED
         application.status = "PAYMENT_FAILED"
 
         db.session.commit()
@@ -798,10 +857,50 @@ def initiate_pending_payment(transaction):
         raise
 
     except Exception as exc:
+
         db.session.rollback()
 
-        transaction.status = FAILED
+        error_text = str(exc).lower()
 
+        # ----------------------------------------------------
+        # Unknown network/timeout problem.
+        #
+        # Do NOT immediately tell the customer the payment
+        # failed because the STK request may have reached
+        # PalPluss already.
+        # ----------------------------------------------------
+
+        uncertain_errors = (
+            "timeout",
+            "timed out",
+            "connection",
+            "network",
+            "gateway",
+            "temporarily unavailable",
+        )
+
+        if any(
+            message in error_text
+            for message in uncertain_errors
+        ):
+            transaction.status = PENDING
+            application.status = "PAYMENT_PENDING"
+
+            db.session.commit()
+
+            current_app.logger.warning(
+                "Uncertain PalPluss response for transaction %s: %s",
+                transaction.id,
+                exc,
+            )
+
+            return transaction
+
+        # ----------------------------------------------------
+        # Genuine unexpected error
+        # ----------------------------------------------------
+
+        transaction.status = FAILED
         application.status = "PAYMENT_FAILED"
 
         db.session.commit()

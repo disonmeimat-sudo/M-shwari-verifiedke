@@ -1,3 +1,5 @@
+"""Payment routes: payment screen, STK Push, polling, simulation, and retry."""
+
 from flask import (
     Blueprint,
     abort,
@@ -15,6 +17,7 @@ from app.models.payment import PaymentTransaction
 from app.routes.application import _get_owned
 from app.services import payment_service
 
+
 bp = Blueprint("payment", __name__)
 
 
@@ -23,7 +26,13 @@ bp = Blueprint("payment", __name__)
 # ============================================================
 
 def _owned_tx(application_id, transaction_id):
-    """Return a transaction only if it belongs to the current session/application."""
+    """
+    Return a payment transaction only if:
+
+    1. The transaction exists.
+    2. It belongs to the supplied application.
+    3. The application belongs to the current browser session.
+    """
 
     tx = PaymentTransaction.query.get(transaction_id)
 
@@ -40,7 +49,10 @@ def _owned_tx(application_id, transaction_id):
 
 
 def _result_redirect(status, application_id):
-    """Return the correct final page for a payment status."""
+    """
+    Return the correct final application page
+    for the payment status.
+    """
 
     if status == payment_service.SUCCESS:
         return url_for(
@@ -59,7 +71,7 @@ def _result_redirect(status, application_id):
 # ============================================================
 
 @bp.route(
-    "/payment/int:application_id/int:transaction_id",
+    "/payment/<int:application_id>/<int:transaction_id>",
     methods=["GET"],
 )
 def payment_screen(application_id, transaction_id):
@@ -67,18 +79,22 @@ def payment_screen(application_id, transaction_id):
     Display the payment confirmation screen.
 
     IMPORTANT:
-    This route DOES NOT send the STK Push.
+    This route does NOT send the STK Push.
 
-    The STK Push is only sent after the user clicks CONTINUE.
+    The STK Push is only sent after the user clicks
+    CONTINUE on payment.html.
     """
 
-    tx = _owned_tx(application_id, transaction_id)
+    tx = _owned_tx(
+        application_id,
+        transaction_id,
+    )
 
     if tx is None:
         abort(404)
 
-    # If payment was somehow already completed,
-    # do not show the payment screen again.
+    # If payment is already finished,
+    # don't show the payment screen again.
     if tx.status in payment_service.TERMINAL:
         return redirect(
             _result_redirect(
@@ -100,14 +116,14 @@ def payment_screen(application_id, transaction_id):
 # ============================================================
 
 @bp.post(
-    "/payment/int:application_id/int:transaction_id/start",
+    "/payment/<int:application_id>/<int:transaction_id>/start",
 )
 @limiter.limit("5 per minute")
 def start_payment(application_id, transaction_id):
     """
-    Send the actual PalPluss STK Push.
+    Send the actual Palpus STK Push.
 
-    This endpoint is called ONLY when the user clicks
+    This endpoint is called only when the user clicks
     CONTINUE on payment.html.
     """
 
@@ -146,8 +162,8 @@ def start_payment(application_id, transaction_id):
         })
 
     # --------------------------------------------------------
-    # If the transaction already has a PalPluss reference,
-    # the STK Push has already been sent.
+    # If provider reference already exists,
+    # STK Push was already initiated.
     # --------------------------------------------------------
 
     if tx.reference:
@@ -161,25 +177,30 @@ def start_payment(application_id, transaction_id):
         })
 
     # --------------------------------------------------------
-    # Send STK Push NOW
+    # SEND STK PUSH
     # --------------------------------------------------------
 
     try:
         payment_service.initiate_pending_payment(tx)
 
     except payment_service.PaymentProviderError as exc:
+
         current_app.logger.error(
-            "PalPluss STK Push failed for transaction %s: %s",
+            "Palpus STK Push failed for transaction %s: %s",
             tx.id,
             exc,
         )
 
         return jsonify({
             "status": payment_service.FAILED,
-            "error": "Unable to send the payment request. Please try again.",
+            "error": (
+                "Unable to send the payment request. "
+                "Please try again."
+            ),
         }), 502
 
     except Exception:
+
         current_app.logger.exception(
             "Unexpected error starting payment transaction %s",
             tx.id,
@@ -187,11 +208,14 @@ def start_payment(application_id, transaction_id):
 
         return jsonify({
             "status": payment_service.FAILED,
-            "error": "Unable to start payment. Please try again.",
+            "error": (
+                "Unable to start payment. "
+                "Please try again."
+            ),
         }), 500
 
     # --------------------------------------------------------
-    # STK Push was successfully initiated
+    # STK PUSH SUCCESSFULLY INITIATED
     # --------------------------------------------------------
 
     return jsonify({
@@ -209,12 +233,13 @@ def start_payment(application_id, transaction_id):
 # ============================================================
 
 @bp.route(
-    "/processing/int:application_id/int:transaction_id",
+    "/processing/<int:application_id>/<int:transaction_id>",
     methods=["GET"],
 )
 def processing(application_id, transaction_id):
     """
-    Display the processing screen after STK Push has been sent.
+    Display the processing screen after the STK Push
+    has been sent.
     """
 
     tx = _owned_tx(
@@ -225,6 +250,7 @@ def processing(application_id, transaction_id):
     if tx is None:
         abort(404)
 
+    # Payment already finished.
     if tx.status in payment_service.TERMINAL:
         return redirect(
             _result_redirect(
@@ -250,11 +276,11 @@ def processing(application_id, transaction_id):
 # ============================================================
 
 @bp.get(
-    "/api/payment/int:transaction_id/status",
+    "/api/payment/<int:transaction_id>/status",
 )
 def payment_status(transaction_id):
     """
-    Poll PalPluss for the current transaction status.
+    Poll Palpus for the current transaction status.
     """
 
     tx = PaymentTransaction.query.get(transaction_id)
@@ -264,6 +290,8 @@ def payment_status(transaction_id):
             "error": "Not found",
         }), 404
 
+    # Make sure this transaction belongs to
+    # the current browser session.
     if session.get("draft_application_id") != tx.application_id:
         return jsonify({
             "error": "Not found",
@@ -290,7 +318,7 @@ def payment_status(transaction_id):
 # ============================================================
 
 @bp.post(
-    "/api/payment/int:transaction_id/simulate",
+    "/api/payment/<int:transaction_id>/simulate",
 )
 @limiter.limit("12 per minute")
 def simulate(transaction_id):
@@ -343,12 +371,12 @@ def simulate(transaction_id):
 # ============================================================
 
 @bp.post(
-    "/payment/int:application_id/retry",
+    "/payment/<int:application_id>/retry",
 )
 @limiter.limit("5 per minute")
 def retry(application_id):
     """
-    Retry a failed/cancelled payment.
+    Retry a failed or cancelled payment.
     """
 
     app_obj = _get_owned(
