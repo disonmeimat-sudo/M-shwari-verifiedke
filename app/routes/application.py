@@ -302,7 +302,7 @@ def apply():
 # REVIEW
 # ============================================================
 
-@bp.route("/review/int:application_id")
+@bp.route("/review/<int:application_id>")
 def review(application_id):
 
     app_obj = _get_owned(
