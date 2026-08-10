@@ -104,7 +104,7 @@ def create_app(config_class=Config, config_overrides=None):
         from app.services.settings_service import get_setting
 
         return {
-            "app_name": "LOAN PORTAL KE",
+            "app_name": "M-SHWARI LOANS",
             "lab_mode": app.config["LAB_MODE"],
             "loan_products": get_loan_products(),
             "disclaimer_text": get_setting(
