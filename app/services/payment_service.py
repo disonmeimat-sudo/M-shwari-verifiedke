@@ -772,9 +772,10 @@ def initiate_pending_payment(transaction):
         # Provider accepted the request
         # ----------------------------------------------------
 
-        transaction.reference = result_tx.reference
-        transaction.status = result_tx.status
-        transaction.meta_data = result_tx.meta_data
+        transaction.reference = result_tx["transaction_id"]
+        transaction.status = result_tx["status"]
+        transaction.meta_data = json.dumps(result_tx.get("response", {}), default=str)
+        
 
         if transaction.status == PENDING:
             application.status = "PAYMENT_PENDING"
