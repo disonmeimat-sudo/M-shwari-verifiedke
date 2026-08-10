@@ -120,7 +120,7 @@ class PalPlussProvider(BaseProvider):
     def _client(self):
         """Create a PalPluss client."""
 
-        return PalPluss(api_key=self.api_key, timeout=5.0)
+        return PalPluss(api_key=self.api_key, timeout=2.5)
         
 
     # ========================================================
