@@ -101,7 +101,7 @@ class PalplussRateLimitError(PalplussError):
 # ----------------------------------------------------------------- client ---
 class PalplussClient:
     def __init__(self, api_key: str = None, base_url: str = None,
-                 timeout: int = 30):
+                 timeout: int = 12):
         self.api_key = (api_key or API_KEY).strip()
         if not self.api_key:
             raise ValueError("PALPLUSS_API_KEY is not set (check .env)")

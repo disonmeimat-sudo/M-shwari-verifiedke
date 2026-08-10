@@ -312,10 +312,8 @@ class Config:
     DISCLAIMER_TEXT = os.environ.get(
         "DISCLAIMER_TEXT",
         (
-            "LOAN PORTAL KE is a nationwide application portal. "
             "Please review all application details carefully "
             "This is done in empowerment of youths ad future generation"
-            "before proceeding with your payment."
         ),
     )
 
