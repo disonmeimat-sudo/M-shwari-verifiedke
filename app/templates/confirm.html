@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/application.css') }}">{% endblock %}
+{% block title %}Confirm Application | {{ app_name }}{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  {% set step = 3 %}{% include "partials/steps.html" %}
+
+  <div class="card summary-card">
+    <h1 class="card-title">Confirm Application</h1>
+    <p class="card-sub">You are about to confirm your application.</p>
+
+    <div class="confirm-note">
+      <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+      <span>Confirm the details below to continue to the M-pesa payment step.</span>
+    </div>
+
+    <div class="summary-row"><span class="summary-label">Requested Amount</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.loan_amount) }}</span></div>
+    <div class="summary-row"><span class="summary-label">Service Fee</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.service_fee) }}</span></div>
+    <div class="summary-row summary-total"><span class="summary-label">Total Service Fee</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.service_fee) }}</span></div>
+
+    <form method="post" class="form-actions">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-green btn-block">Confirm Application</button>
+    </form>
+    <a href="{{ back_url }}" class="btn btn-outline-green btn-block">Go Back</a>
+  </div>
+</div>
+{% endblock %}

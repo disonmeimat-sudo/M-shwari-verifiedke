@@ -1,0 +1,13 @@
+{# errors/403.html — same card, title "403 — Access Denied", text "You do not have permission to view this page." #}
+{% extends "base.html" %}
+{% block title %}Access Denied | {{ app_name }}{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <div class="card result-card text-center">
+    <div class="result-icon neutral" aria-hidden="true"><i class="bi bi-lock-fill"></i></div>
+    <h1 class="card-title">403 — Access Denied</h1>
+    <p class="card-sub">You do not have permission to view this page.</p>
+    <a href="{{ url_for('main.landing') }}" class="btn btn-green btn-block">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

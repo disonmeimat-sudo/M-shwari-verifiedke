@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/application.css') }}">{% endblock %}
+{% block title %}Complete your application | {{ app_name }}{% endblock %}
+{% block header %}
+<header class="app-header app-header-form">
+  <div class="header-inner">
+    <a href="{{ back_url }}" class="header-back" aria-label="Go back"><i class="bi bi-arrow-left" aria-hidden="true"></i></a>
+    <span class="brand-name">{{ app_name }}</span>
+    <span class="header-spacer" aria-hidden="true"></span>
+  </div>
+</header>
+{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  {% set step = 2 %}{% include "partials/steps.html" %}
+
+  <div class="card app-card">
+    <h1 class="card-title">Complete your application</h1>
+    <p class="loan-amount-line">Loan amount: <strong>KSH {{ '{:,.0f}'.format(product.amount) }}</strong></p>
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        {{ form.full_name.label(class="form-label") }}
+        {{ form.full_name(class="form-control", placeholder="As shown on your ID", autocomplete="name") }}
+        {% for e in form.full_name.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.phone.label(class="form-label") }}
+        <div class="input-group">
+          <span class="input-group-text phone-prefix">+254</span>
+          {{ form.phone(class="form-control", placeholder="7XXXXXXXX", inputmode="numeric", autocomplete="tel") }}
+        </div>
+        {% for e in form.phone.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        <div class="form-hint">{{ stk_helper_text }}</div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.county.label(class="form-label") }}
+        {{ form.county(class="form-select") }}
+        {% for e in form.county.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.loan_reason.label(class="form-label") }}
+        {{ form.loan_reason(class="form-select") }}
+        {% for e in form.loan_reason.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control", placeholder="you@example.com", autocomplete="email") }}
+        {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+
+      <div class="privacy-notice">
+        <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+        <span>Your information is kept confidential. If you experience any issue, please contact our support team.</span>
+      </div>
+
+      <div class="form-actions">
+        <a href="{{ back_url }}" class="btn btn-outline-green btn-block">Back</a>
+        <button type="submit" class="btn btn-green btn-block">Continue</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

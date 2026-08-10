@@ -1,0 +1,31 @@
+/* ============ Breakpoint refinements (mobile-first) ============ */
+/* 320px — tighten spacing */
+@media (max-width: 339px) {
+  .landing-wrap, .form-wrap { padding-left: 12px; padding-right: 12px; }
+  .loan-grid { gap: 8px; }
+  .loan-amount { font-size: 14px; }
+  .loan-fee { font-size: 11.5px; }
+  .hero-title { font-size: 24px; }
+}
+
+/* 768px — tablet: feature cards 4-in-row, roomier padding */
+@media (min-width: 768px) {
+  .feature-grid { grid-template-columns: repeat(4, 1fr); }
+  .landing-wrap, .form-wrap { padding-top: 28px; }
+  .app-footer, .flash-msg { margin-top: 8px; }
+}
+
+/* 1024px — desktop: keep the app column, slightly larger cards */
+@media (min-width: 1024px) {
+  .card { padding: 24px 22px; }
+  .app-header { height: 60px; }
+}
+
+/* 1280px+ / 1440px+ — mostly visual polish; column width stays ~430px */
+@media (min-width: 1280px) {
+  .landing-wrap, .form-wrap { box-shadow: 0 0 40px rgba(11, 107, 58, .04); background: rgba(255, 255, 255, .35); }
+  .card { box-shadow: 0 4px 18px rgba(11, 107, 58, .10); }
+}
+@media (min-width: 1440px) {
+  .landing-wrap, .form-wrap { padding-top: 32px; }
+}

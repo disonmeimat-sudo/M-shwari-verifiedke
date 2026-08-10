@@ -1,0 +1,45 @@
+/* ============ Application flow pages ============ */
+/* ---- 3-step progress ---- */
+.steps { display: flex; align-items: center; gap: 6px; margin: 14px 0 20px; }
+.step { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 0 0 auto; }
+.step-circle {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+  background: #E5F0E8; color: #7A9A87;
+  transition: background .2s, color .2s, box-shadow .2s;
+}
+.step.done .step-circle { background: var(--green-light); color: var(--green-dark); }
+.step.active .step-circle { background: var(--green); color: #fff; box-shadow: 0 0 0 4px rgba(22, 163, 74, .15); }
+.step-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.step.active .step-label { color: var(--green-dark); font-weight: 800; }
+.step-line { flex: 1; height: 2px; background: #D9E8DE; border-radius: 2px; align-self: flex-start; margin-top: 14px; min-width: 12px; }
+
+/* ---- Application form ---- */
+.loan-amount-line { font-size: 15px; color: var(--muted); margin: 0 0 18px; }
+.loan-amount-line strong { color: var(--green-dark); }
+
+/* ---- Payment / STK push ---- */
+.payment-card, .processing-card, .result-card { text-align: center; }
+.pay-head { margin-bottom: 6px; }
+.pay-icon { width: 76px; height: 76px; border-radius: 50%; background: var(--green-light); color: var(--green); font-size: 34px; display: flex; align-items: center; justify-content: center; margin: 4px auto 14px; }
+.pay-head h1 { font-size: 21px; font-weight: 800; color: var(--green-dark); margin: 0 0 2px; }
+.pay-sub { color: var(--muted); font-size: 14.5px; margin: 0 0 10px; }
+.pay-amount { font-size: 30px; font-weight: 800; color: var(--green-dark); margin: 8px 0; letter-spacing: .3px; }
+.pay-info { color: var(--muted); font-size: 15px; margin-bottom: 14px; }
+.pay-info strong { color: var(--text); }
+.pay-meta { text-align: left; background: #F7FBF8; border: 1px solid var(--border); border-radius: 12px; padding: 6px 14px; margin-bottom: 18px; }
+.pay-meta > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.pay-meta > div:last-child { border-bottom: none; }
+.pay-meta span { color: var(--muted); }
+.pay-meta strong { color: var(--text); word-break: break-all; }
+
+.pay-detail { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; text-align: left; }
+.pay-detail span { color: var(--muted); }
+.pay-detail strong { color: var(--text); word-break: break-all; }
+.processing-hint { color: var(--muted); font-size: 13.5px; margin: 16px 0 0; }
+
+/* ---- Lab tools ---- */
+.lab-controls { border: 1px dashed var(--green); border-radius: 12px; padding: 12px; margin-top: 16px; background: #F7FCF8; }
+.lab-controls p { margin: 0 0 10px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.btn-sm { min-height: 38px; font-size: 13.5px; padding: 6px 14px; }

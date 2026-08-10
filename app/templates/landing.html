@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">{% endblock %}
+{% block title %}{{ app_name }} — Get a Loan{% endblock %}
+{% block content %}
+<div class="landing-wrap">
+  <div class="hero text-center">
+    <div class="hero-icon" aria-hidden="true"><i class="bi bi-wallet2"></i></div>
+    <h1 class="hero-title">Get a Loan</h1>
+    <p class="hero-sub">Apply quickly from your mobile phone.</p>
+  </div>
+
+  <div class="disclaimer-card">
+    <i class="bi bi-info-circle" aria-hidden="true"></i>
+    <p>{{ disclaimer_text }}</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card"><span class="feature-icon" aria-hidden="true"><i class="bi bi-shield-check"></i></span><span>Secure</span></div>
+    <div class="feature-card"><span class="feature-icon" aria-hidden="true"><i class="bi bi-lightning-charge-fill"></i></span><span>Fast</span></div>
+    <div class="feature-card"><span class="feature-icon" aria-hidden="true"><i class="bi bi-check2-square"></i></span><span>Simple</span></div>
+    <div class="feature-card"><span class="feature-icon" aria-hidden="true"><i class="bi bi-headset"></i></span><span>Support</span></div>
+  </div>
+
+  <div class="status-card">
+    <div class="status-left">
+      <span class="status-dot" aria-hidden="true"></span>
+      <div>
+        <div class="status-title">Service available</div>
+        <div class="status-sub">Applications processed today — {{ applications_today }}</div>
+      </div>
+    </div>
+    <span class="demo-badge">{{ 'Demo' if lab_mode else 'Live' }}</span>
+  </div>
+
+  <h2 class="section-title">Select Your Loan Amount</h2>
+
+  <form id="loan-form" method="get" action="{{ url_for('application.apply') }}">
+    <input type="hidden" name="amount" id="selected-amount" value="">
+    <div class="loan-grid" id="loan-grid">
+      {% for p in loan_products %}
+      <button type="button" class="loan-card" data-amount="{{ p.amount }}" aria-pressed="false">
+        <span class="loan-check" aria-hidden="true"><i class="bi bi-check-lg"></i></span>
+        <span class="loan-amount">KES {{ '{:,.0f}'.format(p.amount) }}</span>
+        <span class="loan-fee">Service fee: KES {{ '{:,.0f}'.format(p.fee) }}</span>
+      </button>
+      {% endfor %}
+    </div>
+
+    <div class="apply-bar">
+      <button type="submit" id="apply-btn" class="btn btn-green btn-block" disabled>
+        Apply for KSH —
+      </button>
+      <p class="apply-hint">Select a loan amount to continue</p>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/loan.js') }}"></script>{% endblock %}

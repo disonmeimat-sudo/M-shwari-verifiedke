@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/application.css') }}">{% endblock %}
+{% block title %}Review Your Application | {{ app_name }}{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  {% set step = 3 %}{% include "partials/steps.html" %}
+
+  <div class="card summary-card">
+    <h1 class="card-title">Review Your Application</h1>
+    <p class="card-sub">Check the details below before continuing.</p>
+
+    <div class="summary-row"><span class="summary-label">Loan Amount</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.loan_amount) }}</span></div>
+    <div class="summary-row"><span class="summary-label">Service Fee</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.service_fee) }}</span></div>
+    <div class="summary-row summary-total"><span class="summary-label">Total Amount</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.loan_amount) }}</span></div>
+    <div class="summary-row"><span class="summary-label">Full Legal Name</span><span class="summary-value">{{ application.full_name }}</span></div>
+    <div class="summary-row"><span class="summary-label">Mobile Number</span><span class="summary-value">{{ application.phone | phone }}</span></div>
+    <div class="summary-row"><span class="summary-label">County</span><span class="summary-value">{{ application.county }}</span></div>
+    <div class="summary-row"><span class="summary-label">Reason</span><span class="summary-value">{{ application.loan_reason }}</span></div>
+    <div class="summary-row"><span class="summary-label">Email</span><span class="summary-value">{{ application.email or '—' }}</span></div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('application.apply', amount=application.loan_amount) }}" class="btn btn-outline-green btn-block">Edit Application</a>
+      <a href="{{ url_for('application.confirm', application_id=application.id) }}" class="btn btn-green btn-block">Confirm &amp; Continue</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

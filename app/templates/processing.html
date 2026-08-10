@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link
+  rel="stylesheet"
+  href="{{ url_for(
+      'static',
+      filename='css/application.css'
+  ) }}"
+>
+{% endblock %}
+
+{% block title %}
+Processing Payment | {{ app_name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="form-wrap">
+
+  <div
+    class="card processing-card"
+    data-poll-url="{{ url_for(
+        'payment.payment_status',
+        transaction_id=transaction.id
+    ) }}"
+  >
+
+    <div class="text-center">
+
+      <div
+        class="spinner-ring"
+        aria-hidden="true"
+      ></div>
+
+      <h1 class="card-title">
+        Processing Payment
+      </h1>
+
+      <p class="card-sub">
+        Please check your phone and complete
+        the M-Pesa payment request.
+      </p>
+
+    </div>
+
+
+    <div class="pay-detail">
+      <span>Amount</span>
+      <strong>
+        KES {{ '{:,.0f}'.format(transaction.amount) }}
+      </strong>
+    </div>
+
+
+    <div class="pay-detail">
+      <span>Phone</span>
+      <strong>
+        {{ transaction.phone | phone }}
+      </strong>
+    </div>
+
+
+    <div class="pay-detail">
+      <span>Reference</span>
+      <strong>
+        {{ transaction.reference }}
+      </strong>
+    </div>
+
+
+    <div class="pay-detail">
+      <span>Provider</span>
+      <strong>
+        PalPluss
+      </strong>
+    </div>
+
+
+    <div
+      class="status-pill pending"
+      role="status"
+    >
+
+      <span
+        class="pulse-dot"
+        aria-hidden="true"
+      ></span>
+
+      Waiting for payment confirmation...
+
+    </div>
+
+
+    <p class="processing-hint">
+      Keep this page open. We are confirming
+      your payment with PalPluss.
+    </p>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script
+  src="{{ url_for(
+      'static',
+      filename='js/payment.js'
+  ) }}"
+></script>
+
+{% endblock %}

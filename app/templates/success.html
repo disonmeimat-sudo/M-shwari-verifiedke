@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/application.css') }}">{% endblock %}
+{% block title %}Application Submitted Successfully | {{ app_name }}{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <div class="card result-card">
+    <div class="result-icon success" aria-hidden="true"><i class="bi bi-check-lg"></i></div>
+    <h1 class="card-title">Application Submitted Successfully</h1>
+
+    {% if lab_mode %}
+    <div class="lab-note text-center"><i class="bi bi-flask" aria-hidden="true"></i> M-pesa transaction your financial eeds on your pocket.</div>
+    {% endif %}
+
+    <div class="summary-row"><span class="summary-label">Application ID</span><span class="summary-value">{{ application.application_number }}</span></div>
+    <div class="summary-row"><span class="summary-label">Loan Amount</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.loan_amount) }}</span></div>
+    <div class="summary-row"><span class="summary-label">Payment Status</span><span class="summary-value"><span class="status-badge ok">Paid</span></span></div>
+    <div class="summary-row"><span class="summary-label">Reference</span><span class="summary-value">{{ transaction.reference }}</span></div>
+    <div class="summary-row"><span class="summary-label">Date</span><span class="summary-value">{{ application.created_at.strftime('%d %b %Y, %H:%M') }}</span></div>
+
+    <a href="{{ url_for('application.detail', application_id=application.id) }}" class="btn btn-green btn-block">View Application</a>
+    <a href="{{ url_for('main.landing') }}" class="btn btn-outline-green btn-block">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

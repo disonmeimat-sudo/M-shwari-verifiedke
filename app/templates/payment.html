@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block styles %}
+{% endblock %}
+
+{% block title %}
+Check Your Phone | {{ app_name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="pay-head">
+    <div class="pay-icon" aria-hidden="true">
+        <i class="bi bi-phone"></i>
+    </div>
+
+    <h1>Complete Your Payment</h1>
+
+    <p class="pay-sub">
+        Click continue to receive an M-Pesa payment request on your phone.
+    </p>
+</div>
+
+
+<div class="pay-amount">
+    KES {{ '{:,.0f}'.format(transaction.amount) }}
+</div>
+
+
+<div class="pay-info">
+
+    <p>
+        An STK Push will be sent to
+        <strong>{{ transaction.phone | phone }}</strong>.
+    </p>
+
+    <p>
+        Check your phone and enter your M-Pesa PIN to complete the payment.
+    </p>
+
+    {% if lab_mode %}
+    <div class="lab-note">
+        If you are having problems, kindly contact the support team.
+    </div>
+    {% endif %}
+
+</div>
+
+
+<div class="pay-meta">
+
+    <div>
+        <span>Reference</span>
+        <strong>{{ transaction.reference or 'Pending' }}</strong>
+    </div>
+
+    <div>
+        <span>Status</span>
+        <strong>{{ transaction.status }}</strong>
+    </div>
+
+    <div>
+        <span>Provider</span>
+        <strong>{{ transaction.provider }}</strong>
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     CONTINUE BUTTON
+     ========================================================= -->
+
+<button
+    type="button"
+    id="continuePaymentBtn"
+    class="btn btn-green btn-block"
+    data-start-url="{{ url_for(
+        'payment.start_payment',
+        application_id=application.id,
+        transaction_id=transaction.id
+    ) }}"
+>
+    CONTINUE
+</button>
+
+
+<!-- Payment error -->
+<div
+    id="paymentError"
+    class="payment-error"
+    style="display: none;"
+    role="alert"
+></div>
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/application.css') }}">{% endblock %}
+{% block title %}Payment Unsuccessful | {{ app_name }}{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <div class="card result-card">
+    <div class="result-icon failed" aria-hidden="true"><i class="bi bi-x-lg"></i></div>
+    <h1 class="card-title">Payment Unsuccessful</h1>
+    <p class="card-sub">We could not confirm the payment. Possible reasons:</p>
+
+    <ul class="reason-list">
+      <li>Payment cancelled</li>
+      <li>Insufficient funds</li>
+      <li>Request timed out</li>
+      <li>Payment provider unavailable</li>
+    </ul>
+
+    {% if lab_mode %}
+    <div class="lab-note text-center"><i class="bi bi-flask" aria-hidden="true"></i> Loan Outcome: {{ transaction.status | title }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('payment.retry', application_id=application.id) }}" class="form-actions">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-green btn-block">Try Again</button>
+    </form>
+    <a href="{{ url_for('application.apply', amount=application.loan_amount) }}" class="btn btn-outline-green btn-block">Back to Application</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{# Usage: {% set step = 2 %}{% include "partials/steps.html" %} #}
+<div class="steps" role="list" aria-label="Application progress">
+  {% for s in [1, 2, 3] %}
+    {% set labels = ['Loan selected', 'Application', 'Confirmation'] %}
+    <div class="step {{ 'done' if s < step else ('active' if s == step else '') }}" role="listitem">
+      <span class="step-circle" aria-hidden="true">{{ '✓' if s < step else s }}</span>
+      <span class="step-label">{{ labels[s - 1] }}</span>
+    </div>
+    {% if s < 3 %}<span class="step-line" aria-hidden="true"></span>{% endif %}
+  {% endfor %}
+</div>

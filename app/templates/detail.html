@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block styles %}<link rel="stylesheet" href="{{ url_for('static', filename='css/application.css') }}">{% endblock %}
+{% block title %}Application {{ application.application_number }} | {{ app_name }}{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <div class="card summary-card">
+    <h1 class="card-title">Application Details</h1>
+    <div class="summary-row"><span class="summary-label">Application ID</span><span class="summary-value">{{ application.application_number }}</span></div>
+    <div class="summary-row"><span class="summary-label">Status</span><span class="summary-value"><span class="status-badge">{{ application.status | replace('_', ' ') | title }}</span></span></div>
+    <div class="summary-row"><span class="summary-label">Loan Amount</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.loan_amount) }}</span></div>
+    <div class="summary-row"><span class="summary-label">Service Fee</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.service_fee) }}</span></div>
+    <div class="summary-row"><span class="summary-label">Total</span><span class="summary-value">KES {{ '{:,.0f}'.format(application.total_amount) }}</span></div>
+    <div class="summary-row"><span class="summary-label">Full Name</span><span class="summary-value">{{ application.full_name }}</span></div>
+    <div class="summary-row"><span class="summary-label">Mobile</span><span class="summary-value">{{ application.phone | phone }}</span></div>
+    <div class="summary-row"><span class="summary-label">County</span><span class="summary-value">{{ application.county }}</span></div>
+    <div class="summary-row"><span class="summary-label">Reason</span><span class="summary-value">{{ application.loan_reason }}</span></div>
+    {% if transaction %}
+    <div class="summary-row"><span class="summary-label">Payment Ref</span><span class="summary-value">{{ transaction.reference }}</span></div>
+    <div class="summary-row"><span class="summary-label">Payment Status</span><span class="summary-value">{{ transaction.status | title }}</span></div>
+    {% endif %}
+    <a href="{{ url_for('main.landing') }}" class="btn btn-outline-green btn-block">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

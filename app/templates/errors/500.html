@@ -1,0 +1,13 @@
+{# errors/500.html — same card, title "500 — Something Went Wrong", text "An unexpected error occurred. Please try again." #}
+{% extends "base.html" %}
+{% block title %}Server Error | {{ app_name }}{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <div class="card result-card text-center">
+    <div class="result-icon neutral" aria-hidden="true"><i class="bi bi-exclamation-triangle"></i></div>
+    <h1 class="card-title">500 — Something Went Wrong</h1>
+    <p class="card-sub">An unexpected error occurred. Please try again.</p>
+    <a href="{{ url_for('main.landing') }}" class="btn btn-green btn-block">Back to Home</a>
+  </div>
+</div>
+{% endblock %}
