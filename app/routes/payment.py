@@ -12,7 +12,7 @@ from flask import (
     url_for,
 )
 
-from app.extensions import limiter
+from app.extensions import db, limiter, csrf
 from app.models.payment import PaymentTransaction
 from app.routes.application import _get_owned
 from app.services import payment_service
@@ -399,3 +399,73 @@ def retry(application_id):
             transaction_id=tx.id,
         )
     )
+# ============================================================
+# PALPLUSS WEBHOOK
+# ============================================================
+
+@bp.post("/webhooks/palpluss")
+@csrf.exempt
+def palpluss_webhook():
+    """Receive payment status callbacks from PalPluss."""
+
+    payload = request.get_json(silent=True) or {}
+
+    current_app.logger.info(
+        "PalPluss webhook received: %s",
+        payload,
+    )
+
+    transaction = payload.get("transaction") or {}
+
+    provider_transaction_id = (
+        transaction.get("id")
+        or transaction.get("transactionId")
+        or transaction.get("transaction_id")
+    )
+
+    provider_status = str(
+        transaction.get("status")
+        or payload.get("status")
+        or ""
+    ).upper()
+
+    current_app.logger.info(
+        "PalPluss webhook transaction=%s status=%s",
+        provider_transaction_id,
+        provider_status,
+    )
+
+    # --------------------------------------------------------
+    # Find our local transaction
+    # --------------------------------------------------------
+
+    tx = None
+
+    if provider_transaction_id:
+        tx = PaymentTransaction.query.filter_by(
+            reference=str(provider_transaction_id)
+        ).first()
+
+    if tx is None:
+        current_app.logger.warning(
+            "PalPluss webhook: transaction not found: %s",
+            provider_transaction_id,
+        )
+        return jsonify({"received": True}), 200
+
+    # --------------------------------------------------------
+    # Update local payment status
+    # --------------------------------------------------------
+
+    mapped_status = payment_service.PalPlussProvider._map_provider_status(
+        provider_status
+    )
+
+    tx.status = mapped_status
+
+    db.session.commit()
+
+    return jsonify({
+        "received": True,
+        "status": mapped_status,
+    }), 200
