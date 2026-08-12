@@ -14,16 +14,38 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(20), unique=True, index=True)
     email = db.Column(db.String(120), unique=True, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
-    is_active_flag = db.Column(db.Boolean, default=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    applications = db.relationship("LoanApplication", back_populates="user")
+    is_active_flag = db.Column(
+        db.Boolean,
+        default=True,
+        nullable=False,
+    )
+
+    is_admin = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False,
+        index=True,
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+    )
+
+    applications = db.relationship(
+        "LoanApplication",
+        back_populates="user",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(
+            self.password_hash,
+            password,
+        )
 
     @property
     def is_active(self):

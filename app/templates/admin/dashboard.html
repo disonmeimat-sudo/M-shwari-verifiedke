@@ -1,0 +1,294 @@
+{% extends "admin/base.html" %}
+
+{% block admin_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-page-header">
+
+    <div>
+        <h1 class="admin-page-title">Admin Panel</h1>
+        <p class="admin-page-subtitle">
+            M-SHWARI LOANS administration
+        </p>
+    </div>
+
+    <div class="admin-header-profile">
+
+        <div class="admin-avatar">
+            {{ current_user.full_name[:1]|upper }}
+        </div>
+
+        <div>
+            <div class="admin-header-name">
+                {{ current_user.full_name }}
+            </div>
+
+            <div class="admin-header-role">
+                Administrator
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="admin-stats">
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-icon admin-stat-blue">
+            <i class="bi bi-people-fill"></i>
+        </div>
+
+        <div>
+            <div class="admin-stat-label">Total Users</div>
+            <div class="admin-stat-value">{{ total_users }}</div>
+        </div>
+
+    </div>
+
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-icon admin-stat-green">
+            <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
+
+        <div>
+            <div class="admin-stat-label">Applications</div>
+            <div class="admin-stat-value">{{ total_applications }}</div>
+        </div>
+
+    </div>
+
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-icon admin-stat-orange">
+            <i class="bi bi-credit-card-fill"></i>
+        </div>
+
+        <div>
+            <div class="admin-stat-label">Total Payments</div>
+            <div class="admin-stat-value">{{ total_payments }}</div>
+        </div>
+
+    </div>
+
+
+    <div class="admin-stat-card">
+
+        <div class="admin-stat-icon admin-stat-red">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+
+        <div>
+            <div class="admin-stat-label">Pending Payments</div>
+            <div class="admin-stat-value">{{ pending_payments }}</div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="admin-two-column">
+
+    <!-- RECENT USERS -->
+
+    <section class="admin-card">
+
+        <div class="admin-card-header">
+
+            <div>
+                <h2 class="admin-card-title">
+                    Recent Users
+                </h2>
+
+                <div class="admin-card-subtitle">
+                    Latest registered users
+                </div>
+            </div>
+
+            <a
+                href="{{ url_for('admin.users') }}"
+                class="admin-view-all"
+            >
+                View all
+            </a>
+
+        </div>
+
+
+        <div class="admin-table-wrap">
+
+            <table class="admin-table">
+
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Phone</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for user in recent_users %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="admin-user-cell">
+
+                                <div class="admin-user-mini-avatar">
+                                    {{ user.full_name[:1]|upper }}
+                                </div>
+
+                                <div>
+                                    <div class="admin-user-name">
+                                        {{ user.full_name }}
+                                    </div>
+
+                                    <div class="admin-user-email">
+                                        {{ user.email or "—" }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+                            {{ user.phone or "—" }}
+                        </td>
+
+                        <td>
+                            {{ user.created_at.strftime("%d %b %Y") if user.created_at else "—" }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+                        <td colspan="3" class="admin-muted">
+                            No users registered yet.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- RECENT APPLICATIONS -->
+
+    <section class="admin-card">
+
+        <div class="admin-card-header">
+
+            <div>
+                <h2 class="admin-card-title">
+                    Recent Applications
+                </h2>
+
+                <div class="admin-card-subtitle">
+                    Latest loan applications
+                </div>
+            </div>
+
+            <a
+                href="{{ url_for('admin.applications') }}"
+                class="admin-view-all"
+            >
+                View all
+            </a>
+
+        </div>
+
+
+        <div class="admin-table-wrap">
+
+            <table class="admin-table">
+
+                <thead>
+                    <tr>
+                        <th>Applicant</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for application in recent_applications %}
+
+                    <tr>
+
+                        <td>
+                            <div class="admin-user-name">
+                                {{ application.full_name }}
+                            </div>
+
+                            <div class="admin-user-email">
+                                {{ application.phone }}
+                            </div>
+                        </td>
+
+                        <td>
+                            KES {{ "{:,.0f}".format(application.loan_amount) }}
+                        </td>
+
+                        <td>
+
+                            {% set status = application.status|string|upper %}
+
+                            <span class="admin-status
+                                {% if 'PENDING' in status %}
+                                    admin-status-pending
+                                {% elif 'SUCCESS' in status %}
+                                    admin-status-success
+                                {% elif 'FAILED' in status or 'CANCELLED' in status %}
+                                    admin-status-failed
+                                {% else %}
+                                    admin-status-default
+                                {% endif %}
+                            ">
+                                {{ status }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+                        <td colspan="3" class="admin-muted">
+                            No applications yet.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}{% block admin_title %}Admin Panel{% endblock %} — {{ app_name }}{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+
+<div class="admin-layout">
+
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="admin-brand">
+            <div class="admin-brand-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+
+            <div>
+                <div class="admin-brand-title">M-SHWARI LOANS</div>
+                <div class="admin-brand-subtitle">ADMIN PANEL</div>
+            </div>
+        </div>
+
+        <div class="admin-profile">
+
+            <div class="admin-avatar">
+                {{ current_user.full_name[:1]|upper }}
+            </div>
+
+            <div>
+                <div class="admin-profile-name">
+                    {{ current_user.full_name }}
+                </div>
+
+                <div class="admin-profile-role">
+                    Administrator
+                </div>
+            </div>
+
+        </div>
+
+        <nav class="admin-nav">
+
+            <a href="{{ url_for('admin.dashboard') }}"
+               class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                <i class="bi bi-grid-fill"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('admin.users') }}"
+               class="{% if request.endpoint in ['admin.users', 'admin.user_detail'] %}active{% endif %}">
+                <i class="bi bi-people-fill"></i>
+                <span>Users</span>
+            </a>
+
+            <a href="{{ url_for('admin.applications') }}"
+               class="{% if request.endpoint == 'admin.applications' %}active{% endif %}">
+                <i class="bi bi-file-earmark-text-fill"></i>
+                <span>Applications</span>
+            </a>
+
+            <a href="{{ url_for('admin.payments') }}"
+               class="{% if request.endpoint == 'admin.payments' %}active{% endif %}">
+                <i class="bi bi-credit-card-fill"></i>
+                <span>Payments</span>
+            </a>
+
+        </nav>
+
+        <div class="admin-sidebar-bottom">
+
+            <a class="admin-logout"
+               href="{{ url_for('admin.logout') }}">
+                <i class="bi bi-box-arrow-left"></i>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <div class="admin-overlay" id="adminOverlay"></div>
+
+
+    <main class="admin-main">
+
+        <div class="admin-mobile-bar">
+
+            <button
+                type="button"
+                class="admin-menu-button"
+                id="adminMenuButton"
+                aria-label="Open admin menu"
+            >
+                <i class="bi bi-list"></i>
+            </button>
+
+            <div class="admin-mobile-title">
+                M-SHWARI ADMIN
+            </div>
+
+            <a href="{{ url_for('admin.logout') }}"
+               aria-label="Logout"
+               style="color:#66716b;font-size:18px;">
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+
+        </div>
+
+
+        <div class="admin-content">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} mb-3">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block admin_content %}{% endblock %}
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

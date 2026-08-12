@@ -1,0 +1,96 @@
+{% extends "admin/base.html" %}
+
+{% block page_title %}Applications{% endblock %}
+
+{% block page_subtitle %}
+All loan applications
+{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h3>Loan Applications</h3>
+            <p>{{ applications|length }} applications</p>
+        </div>
+
+    </div>
+
+
+    {% if applications %}
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Application</th>
+                    <th>Amount</th>
+                    <th>County</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for application in applications %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ application.full_name }}</strong>
+                        <small class="table-muted">
+                            {{ application.phone }}
+                        </small>
+                    </td>
+
+                    <td>
+                        {{ application.application_number }}
+                    </td>
+
+                    <td>
+                        KES {{ '{:,.0f}'.format(application.loan_amount) }}
+                    </td>
+
+                    <td>
+                        {{ application.county }}
+                    </td>
+
+                    <td>
+                        <span class="status-pill">
+                            {{ application.status }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ application.created_at.strftime('%d %b %Y %H:%M') if application.created_at else '—' }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+        <i class="bi bi-file-earmark"></i>
+        <p>No applications yet.</p>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

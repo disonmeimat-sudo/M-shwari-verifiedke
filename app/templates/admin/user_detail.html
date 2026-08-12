@@ -1,0 +1,356 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ user.full_name }} — Admin{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-page-header">
+
+    <div>
+        <a
+            href="{{ url_for('admin.users') }}"
+            class="admin-back"
+        >
+            ← Back to Users
+        </a>
+
+        <h1>{{ user.full_name }}</h1>
+
+        <p>
+            Complete user account information
+        </p>
+    </div>
+
+</div>
+
+
+<!-- USER PROFILE -->
+
+<div class="admin-grid-2">
+
+    <div class="admin-card">
+
+        <div class="admin-card-header">
+            <div>
+                <h2>User Information</h2>
+                <span>Account details</span>
+            </div>
+        </div>
+
+        <div class="detail-list">
+
+            <div class="detail-row">
+                <span>User ID</span>
+                <strong>#{{ user.id }}</strong>
+            </div>
+
+            <div class="detail-row">
+                <span>Full Name</span>
+                <strong>{{ user.full_name }}</strong>
+            </div>
+
+            <div class="detail-row">
+                <span>Email</span>
+                <strong>{{ user.email or "—" }}</strong>
+            </div>
+
+            <div class="detail-row">
+                <span>Phone</span>
+                <strong>{{ user.phone or "—" }}</strong>
+            </div>
+
+            <div class="detail-row">
+                <span>Account Status</span>
+
+                {% if user.is_active %}
+                    <strong class="text-success">
+                        ACTIVE
+                    </strong>
+                {% else %}
+                    <strong class="text-danger">
+                        INACTIVE
+                    </strong>
+                {% endif %}
+            </div>
+
+            <div class="detail-row">
+                <span>Administrator</span>
+
+                {% if user.is_admin %}
+                    <strong class="text-success">
+                        YES
+                    </strong>
+                {% else %}
+                    <strong>NO</strong>
+                {% endif %}
+            </div>
+
+            <div class="detail-row">
+                <span>Registered</span>
+
+                <strong>
+                    {% if user.created_at %}
+                        {{ user.created_at.strftime("%d %B %Y %H:%M:%S") }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- USER SUMMARY -->
+
+    <div class="admin-card">
+
+        <div class="admin-card-header">
+            <div>
+                <h2>Account Summary</h2>
+                <span>User activity</span>
+            </div>
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-box">
+                <span>Applications</span>
+                <strong>
+                    {{ applications|length }}
+                </strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Total Payments</span>
+                <strong>
+                    {{
+                        applications
+                        |map(attribute="transactions")
+                        |map("length")
+                        |sum
+                    }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- APPLICATIONS -->
+
+<div class="admin-card">
+
+    <div class="admin-card-header">
+
+        <div>
+            <h2>User Applications</h2>
+            <span>
+                All loan applications submitted by this user
+            </span>
+        </div>
+
+    </div>
+
+
+    {% if applications %}
+
+    <div class="admin-table-wrapper">
+
+        <table class="admin-table">
+
+            <thead>
+
+                <tr>
+                    <th>Application</th>
+                    <th>Amount</th>
+                    <th>Service Fee</th>
+                    <th>Total</th>
+                    <th>County</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for application in applications %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ application.application_number }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ application.loan_amount|ksh }}
+                    </td>
+
+                    <td>
+                        {{ application.service_fee|ksh }}
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ application.total_amount|ksh }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ application.county }}
+                    </td>
+
+                    <td>
+                        {{ application.loan_reason }}
+                    </td>
+
+                    <td>
+                        <span class="status-badge">
+                            {{ application.status }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if application.created_at %}
+                            {{ application.created_at.strftime("%d %b %Y %H:%M") }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+        <div class="admin-empty">
+            <h3>No applications</h3>
+            <p>This user has not submitted any loan applications.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- PAYMENT HISTORY -->
+
+<div class="admin-card">
+
+    <div class="admin-card-header">
+
+        <div>
+            <h2>Payment History</h2>
+            <span>
+                Payments associated with this user's applications
+            </span>
+        </div>
+
+    </div>
+
+    {% set has_payments = false %}
+
+    {% for application in applications %}
+        {% if application.transactions %}
+            {% set has_payments = true %}
+        {% endif %}
+    {% endfor %}
+
+
+    <div class="admin-table-wrapper">
+
+        <table class="admin-table">
+
+            <thead>
+
+                <tr>
+                    <th>Transaction</th>
+                    <th>Application</th>
+                    <th>Phone</th>
+                    <th>Amount</th>
+                    <th>Provider</th>
+                    <th>Reference</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for application in applications %}
+
+                {% for payment in application.transactions %}
+
+                    <tr>
+
+                        <td>
+                            #{{ payment.id }}
+                        </td>
+
+                        <td>
+                            {{ application.application_number }}
+                        </td>
+
+                        <td>
+                            {{ payment.phone }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ payment.amount|ksh }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ payment.provider }}
+                        </td>
+
+                        <td>
+                            {{ payment.reference or "Pending" }}
+                        </td>
+
+                        <td>
+                            <span class="status-badge">
+                                {{ payment.status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if payment.created_at %}
+                                {{ payment.created_at.strftime("%d %b %Y %H:%M") }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
