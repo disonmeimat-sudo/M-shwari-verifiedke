@@ -217,7 +217,6 @@ class Config:
     # The server determines the actual product.
 
     LOAN_PRODUCTS = [
-        {"amount": 1000, "fee": 49},
         {"amount": 2000, "fee": 99},
         {"amount": 3000, "fee": 150},
         {"amount": 5000, "fee": 199},
