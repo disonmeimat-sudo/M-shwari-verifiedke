@@ -217,24 +217,8 @@ class Config:
     # The server determines the actual product.
 
     LOAN_PRODUCTS = [
-        {"amount": 2000, "fee": 99},
-        {"amount": 3000, "fee": 150},
-        {"amount": 5000, "fee": 199},
-        {"amount": 7500, "fee": 250},
-        {"amount": 10000, "fee": 300},
-        {"amount": 12500, "fee": 350},
-        {"amount": 16000, "fee": 450},
-        {"amount": 21000, "fee": 500},
-        {"amount": 25500, "fee": 650},
-        {"amount": 30000, "fee": 600},
-        {"amount": 35000, "fee": 650},
-        {"amount": 40000, "fee": 750},
-        {"amount": 45000, "fee": 800},
-        {"amount": 50000, "fee": 900},
-        {"amount": 60000, "fee": 1050},
-        {"amount": 70000, "fee": 1200},
-        {"amount": 80000, "fee": 1350},
-        {"amount": 100000, "fee": 1650},
+        {"amount": amount, "fee": amount // 10}
+        for amount in range(2000, 100001, 500)
     ]
 
 
